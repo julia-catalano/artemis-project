@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios'
 import Score from './Score'
 import PlantCycles from './life-cycle-of-plants.jpg'
+import Status from './Status'
 
 import './App.css';
 
@@ -14,8 +15,9 @@ function App() {
   const [currentCategoryIdx, setCurrentCategoryIdx] = useState(0)
   const [threshold, setThreshold] = useState(30)
   const [score, setScore] = useState({'water': 20, 'sun': 20, 'nutrients': 20})
-  const [won, setWon] = useState(false)
-  const [lost, setLost] = useState(false)
+  // const [won, setWon] = useState(false)
+  // const [lost, setLost] = useState(false)
+  const [status, setStatus] = useState('')
 
   const lifeCycles = ['seed', 'young plant', 'mature plant', 'flower', 'fruit']
   const categories = ['water', 'sun', 'nutrients']
@@ -30,7 +32,6 @@ function App() {
     }
     loadApp()
   }, [])
-
 
   const selectAnAnswer = (evt) => {
     let answer = evt.target.value
@@ -49,6 +50,7 @@ function App() {
     changeCategory()
     setCurrentQuestionIdx(currentQuestionIdx + 1)
     setRadioCheck(false)
+    checkLevel()
   }
 
   const changeCategory = () => {
@@ -58,8 +60,8 @@ function App() {
 
   const checkLevel = () => {
     //if the plant is bearing fruit, congratulate the user!
-    if (currentLifeCycleIdx === 4) {
-      setWon(true)
+    if (currentLifeCycleIdx === 3) {
+      setStatus('won')
     }
     //if they've met the next threshold for all three scores, grow the plant
     if (score.water >= threshold && score.sun >= threshold && score.nutrients >= threshold) {
@@ -71,26 +73,25 @@ function App() {
     else {
       for (const prop in score) {
         if (score[prop] < 10) {
-          setLost(true)
+          setStatus('lost')
         }
       }
     }
 
   }
 
-if (won) return 'congrats, you won!'
-if (lost) return 'oh no, your plant died.'
 
-else return (
+
+return (
     <div className="App">
-
-    {checkLevel()}
 
     <h2 className="title">Welcome to the trivial pursuit of fruit!</h2>
 
     <h3>Rules: Your goal is to get your plant seed through the life cycles until it bears fruit! You have three resources to manage. Each question you're offered will be tied to a resource, and your answers will impact that resource's score (+10 points for correct, -5 for incorrect.) If each resource meets its next goal threshold (10 point increments) for reaching the next stage, your plant will reach the next stage! You won't step back stages (since plants don't really do that) BUT if any resource reaches under 10 points, your plant dies. Womp womp.</h3>
 
     <Score score={score} lifecycle={lifeCycles[currentLifeCycleIdx]} threshold={threshold} category={categories[currentCategoryIdx]}/>
+
+    {status !== '' ? <Status status={status}/> : (
 
     <div>
       {questionList[currentQuestionIdx].question}
@@ -107,7 +108,7 @@ else return (
         })}
         </div>
       </div>
-    </div>
+    </div> )}
     <img src={PlantCycles} alt="plant lifecycles" height={300} width={350}margin={30}></img>
   </div>
   );
