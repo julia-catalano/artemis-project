@@ -18,6 +18,7 @@ function App() {
   // const [won, setWon] = useState(false)
   // const [lost, setLost] = useState(false)
   const [status, setStatus] = useState('')
+  const [losingCat, setLosingCat] = useState('')
 
   const lifeCycles = ['seed', 'young plant', 'mature plant', 'flower', 'fruit']
   const categories = ['water', 'sun', 'nutrients']
@@ -32,6 +33,33 @@ function App() {
     }
     loadApp()
   }, [])
+
+  //When the score updates, we want to check if the level has changed and/or if the user has won or lost
+  useEffect(() => {
+    const checkLevel = () => {
+        //if they've met the next threshold for all three scores, grow the plant
+        if (score.water >= threshold && score.sun >= threshold && score.nutrients >= threshold) {
+          //if the plant is bearing fruit, congratulate the user!
+            if (currentLifeCycleIdx === 3) {
+              setCurrentLifeCycleIdx(4)
+              setStatus('won')
+            } else if (currentLifeCycleIdx < 4) {
+              setCurrentLifeCycleIdx(currentLifeCycleIdx + 1)
+              setThreshold(threshold + 10)
+            }
+        }
+        //otherwise, check on their progress - if they've lost, let them know
+        else {
+          for (const prop in score) {
+            if (score[prop] < 10) {
+              setLosingCat(prop)
+              setStatus('lost')
+            }
+          }
+        }
+    }
+    checkLevel()
+  }, [score, threshold, currentLifeCycleIdx])
 
   const selectAnAnswer = (evt) => {
     let answer = evt.target.value
@@ -50,7 +78,7 @@ function App() {
     changeCategory()
     setCurrentQuestionIdx(currentQuestionIdx + 1)
     setRadioCheck(false)
-    checkLevel()
+    // checkLevel()
   }
 
   const changeCategory = () => {
@@ -58,27 +86,27 @@ function App() {
     currentCategoryIdx === 2 ? setCurrentCategoryIdx(0) : setCurrentCategoryIdx(currentCategoryIdx + 1)
   }
 
-  const checkLevel = () => {
-    //if the plant is bearing fruit, congratulate the user!
-    if (currentLifeCycleIdx === 3) {
-      setStatus('won')
-    }
-    //if they've met the next threshold for all three scores, grow the plant
-    if (score.water >= threshold && score.sun >= threshold && score.nutrients >= threshold) {
-      setCurrentLifeCycleIdx(currentLifeCycleIdx + 1)
-      setThreshold(threshold + 10)
-    }
+  // const checkLevel = () => {
+  //   //if the plant is bearing fruit, congratulate the user!
+  //   if (currentLifeCycleIdx === 3) {
+  //     setStatus('won')
+  //   }
+  //   //if they've met the next threshold for all three scores, grow the plant
+  //   if (score.water >= threshold && score.sun >= threshold && score.nutrients >= threshold) {
+  //     setCurrentLifeCycleIdx(currentLifeCycleIdx + 1)
+  //     setThreshold(threshold + 10)
+  //   }
 
-    //otherwise, check on their progress - if they've lost, let them know
-    else {
-      for (const prop in score) {
-        if (score[prop] < 10) {
-          setStatus('lost')
-        }
-      }
-    }
+  //   //otherwise, check on their progress - if they've lost, let them know
+  //   else {
+  //     for (const prop in score) {
+  //       if (score[prop] < 10) {
+  //         setStatus('lost')
+  //       }
+  //     }
+  //   }
 
-  }
+  // }
 
 
 
@@ -91,7 +119,7 @@ return (
 
     <Score score={score} lifecycle={lifeCycles[currentLifeCycleIdx]} threshold={threshold} category={categories[currentCategoryIdx]}/>
 
-    {status !== '' ? <Status status={status}/> : (
+    {status !== '' ? <Status status={status} losingCat={losingCat}/> : (
 
     <div>
       {questionList[currentQuestionIdx].question}

@@ -12,7 +12,8 @@ const Status = (props) => {
   else if (props.status === "lost") {
     return (
       <div>
-        <p>Oops, your plant died.</p>
+        <p>Oops, your plant died from lack of{props.losingCat}.</p>
+
       </div>
     )
   }
